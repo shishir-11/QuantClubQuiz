@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { RotateCcw, X, Play } from 'lucide-react';
+import './MathGame.css'
+import Navbar from './Navbar';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
@@ -7,9 +11,9 @@ const Modal = ({ isOpen, onClose, children }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button onClick={onClose} className="modal-close">
+        {/* <button onClick={onClose} className="modal-close">
           <X size={24} />
-        </button>
+        </button> */}
         {children}
       </div>
     </div>
@@ -17,6 +21,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 const MathGame = () => {
+  const navigate = useNavigate()
   const [points, setPoints] = useState(0);
   const [timeLeft, setTimeLeft] = useState(120);
   const [question, setQuestion] = useState('');
@@ -24,6 +29,34 @@ const MathGame = () => {
   const [userAnswer, setUserAnswer] = useState('');
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem('email')) {
+      navigate('/signup')
+    } else if (localStorage.getItem('score') !== "-1") {
+      navigate('/leaderboard')
+    }
+
+  }, [])
+
+  useEffect(() => {
+    if (isTimeUp) {
+      async function addScore() {
+
+        await axios.post(process.env.REACT_APP_BACKEND_URL + '/score', {
+          email: localStorage.getItem('email'),
+          score: points
+        })
+
+        localStorage.setItem('score', points)
+        setTimeout(() => {
+          navigate('/leaderboard')
+        }, 3000);
+      }
+
+      addScore()
+    }
+  }, [isTimeUp])
 
   useEffect(() => {
     let timer;
@@ -55,7 +88,7 @@ const MathGame = () => {
   const handleInputChange = (e) => {
     const input = e.target.value;
     setUserAnswer(input);
-    
+
     if (input.length > 0 && !isNaN(input)) {
       if (parseInt(input) === parseInt(answer)) {
         setPoints(points + 1);
@@ -87,49 +120,53 @@ const MathGame = () => {
   };
 
   return (
-    <div className="game-container">
-      <h1>QUANTOBER</h1>
-      <p className="calc-pro">Calc Pro</p>
-      <p className="quant-club">A game by Quant club</p>
-      <div className="reset-button-container">
-        {!isGameStarted ? (
-          <button className="start-button" onClick={startGame}>
-            <Play size={24} />
-            Start Game
-          </button>
-        ) : (
-          <button className="reset-button" onClick={resetGame}>
-            <RotateCcw size={24} />
-          </button>
-        )}
-      </div>
-      <div className="game-board">
-        <div className="game-info">
-          <span>{points} points</span>
-          <span>{timeLeft} seconds</span>
+    <>
+      <Navbar />
+      <div className="game-container">
+        <h1>QUANTOBER</h1>
+        <p className="calc-pro">Calc Pro</p>
+        <p className="quant-club">A game by Quant club</p>
+        <div className="reset-button-container">
+          {!isGameStarted ? (
+            <button className="start-button" onClick={startGame}>
+              <Play size={24} />
+              Start Game
+            </button>
+          ) : (
+            <></>
+            // <button className="reset-button" onClick={resetGame}>
+            //   <RotateCcw size={24} />
+            // </button>
+          )}
         </div>
-        {isGameStarted && (
-          <div className="question-container">
-            <div className="question">{question} =</div>
-            <input
-              type="text"
-              value={userAnswer}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyDown}
-              className="answer-input"
-            />
+        <div className="game-board">
+          <div className="game-info">
+            <span>{points} points</span>
+            <span>{timeLeft} seconds</span>
           </div>
-        )}
-      </div>
+          {isGameStarted && (
+            <div className="question-container">
+              <div className="question">{question} =</div>
+              <input
+                type="text"
+                value={userAnswer}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
+                className="answer-input"
+              />
+            </div>
+          )}
+        </div>
 
-      <Modal isOpen={isTimeUp} onClose={resetGame}>
-        <h2>Time's Up!</h2>
-        <p>Your final score: {points} points</p>
-        <button onClick={resetGame} className="play-again-button">
-          Play Again
-        </button>
-      </Modal>
-    </div>
+        <Modal isOpen={isTimeUp} onClose={resetGame}>
+          <h2>Time's Up!</h2>
+          <p>Your final score: {points} points</p>
+          {/* <button onClick={resetGame} className="play-again-button">
+            Play Again
+          </button> */}
+        </Modal>
+      </div>
+    </>
   );
 };
 
