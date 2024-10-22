@@ -15,13 +15,14 @@ const Leaderboard = () => {
       const res = await axios.get(process.env.REACT_APP_BACKEND_URL + '/score')
       const arr = res.data.users.filter((entry)=>{
         if(entry.score !== -1) return entry
+        return null
       })
       console.log(arr.sort((a,b)=>   b.score - a.score ))
       setLeaderboardData( arr.sort((a,b)=>  b.score - a.score) )
     }
 
     getScores()
-  }, [] )
+  }, [navigate] )
 
   return (
     <>

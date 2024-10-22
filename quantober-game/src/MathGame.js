@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, X, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import './MathGame.css'
 import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,7 @@ const MathGame = () => {
       navigate('/leaderboard')
     }
 
-  }, [])
+  }, [navigate])
 
   useEffect(() => {
     if (isTimeUp) {
@@ -56,7 +56,7 @@ const MathGame = () => {
 
       addScore()
     }
-  }, [isTimeUp])
+  }, [isTimeUp, navigate, points])
 
   useEffect(() => {
     let timer;
