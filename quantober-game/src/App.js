@@ -1,6 +1,7 @@
 import React from 'react';
 import MathGame from './MathGame';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Home from './Home';
 import SignUp from './SignUp';
 import SignIn from './SignIn';
 import Leaderboard from './Leaderboard';
@@ -11,8 +12,13 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
+      element: <><Home/></>
+    },
+    {
+      path: '/game',
       element: <><MathGame/></>
-    },{
+    },
+    {
       path: '/signup',
       element: <><SignUp/></>
     },{
